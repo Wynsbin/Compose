@@ -1,5 +1,6 @@
 package com.yung.compose
 
+import android.R.attr.onClick
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val activity = this
         setContent {
             ComposeTheme {
                 Column(
@@ -27,13 +29,16 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Button(onClick = { HostNavigator.toHome() }) {
+                    Button(onClick = { HostNavigator.toHome(activity) }) {
                         Text(text = "Open Home Module")
                     }
-                    Button(onClick = { HostNavigator.toLogin() }) {
+                    Button(onClick = { HostNavigator.toWeightEdit(activity) }) {
+                        Text(text = "Open Home WeightEdit")
+                    }
+                    Button(onClick = { HostNavigator.toLogin(activity) }) {
                         Text(text = "Open User Login")
                     }
-                    Button(onClick = { HostNavigator.toAbout() }) {
+                    Button(onClick = { HostNavigator.toAbout(activity) }) {
                         Text(text = "Open About Us")
                     }
                 }

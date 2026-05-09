@@ -3,6 +3,7 @@ package com.yung.route
 object RoutePath {
     object Home {
         const val MAIN = "/home/main"
+        const val WEIGHT_EDIT = "/home/WeightEdit"
     }
 
     object User {

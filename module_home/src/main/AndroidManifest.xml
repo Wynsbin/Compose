@@ -6,7 +6,7 @@
             android:name=".HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".gramweight.GramWeightEditActivity"
+            android:name=".GramWeightEditActivity"
             android:exported="false" />
     </application>
 </manifest>
