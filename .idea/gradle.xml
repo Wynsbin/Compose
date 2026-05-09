@@ -10,12 +10,12 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/base" />
-            <option value="$PROJECT_DIR$/database" />
-            <option value="$PROJECT_DIR$/home" />
-            <option value="$PROJECT_DIR$/host" />
-            <option value="$PROJECT_DIR$/route" />
-            <option value="$PROJECT_DIR$/user" />
+            <option value="$PROJECT_DIR$/lib_base" />
+            <option value="$PROJECT_DIR$/lib_database" />
+            <option value="$PROJECT_DIR$/module_home" />
+            <option value="$PROJECT_DIR$/module_host" />
+            <option value="$PROJECT_DIR$/module_route" />
+            <option value="$PROJECT_DIR$/module_user" />
           </set>
         </option>
       </GradleProjectSettings>

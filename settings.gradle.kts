@@ -31,10 +31,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "Compose"
 include(":app")
-include(":base")
-include(":database")
-include(":user")
-include(":host")
-include(":home")
-include(":route")
- 
+include(":lib_base")
+include(":lib_database")
+include(":module_user")
+include(":module_host")
+include(":module_home")
+include(":module_route")
