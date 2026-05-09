@@ -1,0 +1,30 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:2:1-11:12
+INJECTED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:2:1-11:12
+	package
+		INJECTED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:2:11-69
+application
+ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:3:5-10:19
+activity#com.yung.user.AboutActivity
+ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:4:9-6:40
+	android:exported
+		ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:6:13-37
+	android:name
+		ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:5:13-42
+activity#com.yung.user.LoginActivity
+ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:7:9-9:40
+	android:exported
+		ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:9:13-37
+	android:name
+		ADDED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:8:13-42
+uses-sdk
+INJECTED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml
+INJECTED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml

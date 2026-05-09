@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -19,6 +20,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
     }
 
     buildTypes {
@@ -40,6 +43,12 @@ android {
 }
 
 dependencies {
+    implementation(project(":base"))
+    implementation(project(":database"))
+    implementation(project(":route"))
+    implementation(project(":host"))
+    implementation(project(":home"))
+    implementation(project(":user"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

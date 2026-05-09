@@ -1,0 +1,25 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.yung.user" >
+4
+5    <uses-sdk android:minSdkVersion="24" />
+5-->INJECTED
+5-->INJECTED
+6
+7    <application>
+7-->D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:3:5-10:19
+8        <activity
+8-->D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:4:9-6:40
+9            android:name="com.yung.user.AboutActivity"
+9-->D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:5:13-42
+10            android:exported="false" />
+10-->D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:6:13-37
+11        <activity
+11-->D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:7:9-9:40
+12            android:name="com.yung.user.LoginActivity"
+12-->D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:8:13-42
+13            android:exported="false" />
+13-->D:\ASProjects\Example\Compose\user\src\main\AndroidManifest.xml:9:13-37
+14    </application>
+15
+16</manifest>

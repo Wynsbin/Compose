@@ -1,0 +1,8 @@
+com.yung.home-pngs-0 D:\ASProjects\Example\Compose\home\build\generated\res\pngs\debug
+com.yung.home-updated_navigation_xml-1 D:\ASProjects\Example\Compose\home\build\generated\updated_navigation_xml\debug
+com.yung.home-mergeDebugResources-2 D:\ASProjects\Example\Compose\home\build\intermediates\incremental\debug\mergeDebugResources\merged.dir
+com.yung.home-mergeDebugResources-3 D:\ASProjects\Example\Compose\home\build\intermediates\incremental\debug\mergeDebugResources\stripped.dir
+com.yung.home-debug-4 D:\ASProjects\Example\Compose\home\build\intermediates\merged_res\debug\mergeDebugResources
+com.yung.home-debug-5 D:\ASProjects\Example\Compose\home\build\intermediates\packaged_res\debug\packageDebugResources
+com.yung.home-debug-6 D:\ASProjects\Example\Compose\home\src\debug\res
+com.yung.home-main-7 D:\ASProjects\Example\Compose\home\src\main\res
