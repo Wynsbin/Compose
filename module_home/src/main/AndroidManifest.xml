@@ -6,7 +6,13 @@
             android:name=".HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".GramWeightEditActivity"
+            android:name=".gramweight.GramWeightEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".category.list.CategoryListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".category.files.CategoryFileListActivity"
             android:exported="false" />
     </application>
 </manifest>

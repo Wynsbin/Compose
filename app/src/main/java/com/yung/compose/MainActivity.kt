@@ -35,6 +35,9 @@ class MainActivity : ComponentActivity() {
                     Button(onClick = { HostNavigator.toWeightEdit(activity) }) {
                         Text(text = "Open Home WeightEdit")
                     }
+                    Button(onClick = { HostNavigator.toCategoryList(activity) }) {
+                        Text(text = "Open Category List")
+                    }
                     Button(onClick = { HostNavigator.toLogin(activity) }) {
                         Text(text = "Open User Login")
                     }
