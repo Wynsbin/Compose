@@ -38,12 +38,8 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
-@rem Android AGP androidJdkImage 需要完整 JDK（含 jlink），Cursor Red Hat JRE 不满足
-if not exist "%JAVA_HOME%\bin\jlink.exe" (
-  if exist "C:\Program Files\Java\jdk-17\bin\jlink.exe" (
-    set "JAVA_HOME=C:\Program Files\Java\jdk-17"
-  )
-)
+@rem 固定使用完整 JDK，不使用 Cursor Red Hat 扩展自带的 JRE
+set "JAVA_HOME=C:\Program Files\Java\jdk-17"
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
