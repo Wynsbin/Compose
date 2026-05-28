@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <application>
+        <!-- 方案 A：SDK 自带 Provider，authority = {applicationId}.module_pdf.fileProvider -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.module_pdf.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/module_pdf_file_paths" />
+        </provider>
+
+        <activity android:name=".activity.PdfSearchActivity" />
+        <activity android:name=".activity.PdfSelectActivity" />
+        <activity android:name=".activity.PdfPreviewActivity" />
+        <activity android:name=".activity.PdfEditorActivity" />
+        <activity android:name=".activity.PdfManagerActivity" />
+    </application>
+
+</manifest>

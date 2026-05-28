@@ -33,6 +33,14 @@ dependencyResolutionManagement {
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/central") }
         maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven {
+            url = uri("https://packages.aliyun.com/maven/repository/2059818-release-mYrrDg/")
+            credentials {
+                username = "611dcf0c1069a2b099fef257"
+                password = "BSYRFZsTXZv4"
+            }
+        }
+        maven(url = "https://jitpack.io")
         google()
         mavenCentral()
     }
@@ -46,3 +54,4 @@ include(":module_user")
 include(":module_host")
 include(":module_home")
 include(":module_route")
+include(":module_pdf")

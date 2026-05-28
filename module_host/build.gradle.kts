@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -14,9 +15,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-}
 
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+}
 dependencies {
-    implementation(project(":module_route"))
+    api(project(":lib_base"))
+    api(project(":lib_database"))
+    api(project(":module_route"))
+    api(project(":module_home"))
+    api(project(":module_route"))
+    api(project(":module_user"))
+    api(project(":module_pdf"))
     implementation(libs.androidx.core.ktx)
 }

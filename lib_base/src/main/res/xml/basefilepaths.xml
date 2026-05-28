@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <paths>
+        <files-path name="internal_files" path="." />
+        <cache-path name="internal_cache" path="." />
+        <external-files-path name="external_app_files" path="." />
+        <external-cache-path name="external_app_cache" path="." />
+        <external-path name="external_storage" path="." />
+    </paths>
+
+    <!-- ***************************友盟9.3sdk配置*************************-->
+    <external-files-path
+        name="umeng_cache"
+        path="umeng_cache/" />
+    <external-files-path
+        name="opensdk_external"
+        path="Images/tmp" />
+    <root-path
+        name="opensdk_root"
+        path="" />
+    <!-- ***************************友盟9.3sdk配置*************************-->
+
+</resources>

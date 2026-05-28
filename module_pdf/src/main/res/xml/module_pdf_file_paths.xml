@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 应用私有目录（含 FileManager 复制到 cache/share/ 的兜底文件） -->
+    <files-path name="internal_files" path="." />
+    <cache-path name="internal_cache" path="." />
+    <cache-path name="share_cache" path="share/" />
+
+    <!-- 应用专属外部目录：Android/data/<package>/files|cache -->
+    <external-files-path name="external_app_files" path="." />
+    <external-cache-path name="external_app_cache" path="." />
+
+    <!--
+        公域存储根目录（Environment.getExternalStorageDirectory()，一般为 /storage/emulated/0）
+        Download/foo.pdf、Documents/bar.pdf 等路径均在此根下，可用 FileProvider 直接分享。
+        Android 11+ 访问公域路径通常还需 READ 或 MANAGE_EXTERNAL_STORAGE。
+    -->
+    <external-path name="external_storage" path="." />
+
+    <!-- 若只需分享 Download，可改为 path="Download/" 以缩小暴露范围 -->
+    <!-- <external-path name="downloads" path="Download/" /> -->
+
+</paths>

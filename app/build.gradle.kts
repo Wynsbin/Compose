@@ -29,16 +29,12 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
-    implementation(project(":lib_base"))
-    implementation(project(":lib_database"))
-    implementation(project(":module_route"))
     implementation(project(":module_host"))
-    implementation(project(":module_home"))
-    implementation(project(":module_user"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

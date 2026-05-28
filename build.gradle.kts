@@ -11,9 +11,14 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
 }
 
 subprojects {
+    configurations.configureEach {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+    }
+
     afterEvaluate {
         val compileSdkVersion = rootProject.libs.versions.compileSdk.get().toInt()
         val minSdkVersion = rootProject.libs.versions.minSdk.get().toInt()
