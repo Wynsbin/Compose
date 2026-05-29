@@ -1,11 +1,11 @@
 package com.yung.module_pdf.internal.data
 
+import com.yung.module_pdf.api.RecentFileFormat
 import com.yung.module_pdf.api.RecentFileStore
-import com.yung.module_pdf.db.FileInfoEntity
-import com.yung.module_pdf.db.FileInfoFormat
-import com.yung.module_pdf.db.RecentFileDb
-import com.yung.module_pdf.db.insertEntity
-import com.yung.module_pdf.db.insertFile
+import com.yung.module_pdf.internal.db.FileInfoEntity
+import com.yung.module_pdf.internal.db.RecentFileDb
+import com.yung.module_pdf.internal.db.insertEntity
+import com.yung.module_pdf.internal.db.insertFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
@@ -20,10 +20,10 @@ internal object RecentFileRepository {
 
     private fun dao() = RecentFileDb.getInstance().dao()
 
-    fun observeByFormat(format: FileInfoFormat): Flow<List<FileInfoEntity>> {
+    fun observeByFormat(format: RecentFileFormat): Flow<List<FileInfoEntity>> {
         val store = externalStore
         return if (store != null) {
-            store.observeByFormat(format.toApi()).map { files -> files.map { it.toEntity() } }
+            store.observeByFormat(format).map { files -> files.map { it.toEntity() } }
         } else {
             dao().getAll(format)
         }
@@ -38,7 +38,7 @@ internal object RecentFileRepository {
         }
     }
 
-    suspend fun insertFile(path: String?, format: FileInfoFormat?) {
+    suspend fun insertFile(path: String?, format: RecentFileFormat?) {
         if (path == null || format == null) return
         val file = File(path)
         if (!file.exists()) return
@@ -75,7 +75,7 @@ internal object RecentFileRepository {
             if (id != null) {
                 store.delete(id)
             } else {
-                store.deleteByPath(entity.path, entity.format.toApi())
+                store.deleteByPath(entity.path, entity.format)
             }
         } else {
             dao().delete(entity)
@@ -86,7 +86,7 @@ internal object RecentFileRepository {
         name: String,
         path: String,
         size: Long,
-        format: FileInfoFormat,
+        format: RecentFileFormat,
     ): FileInfoEntity? {
         if (externalStore != null) return null
         return dao().getByFile(name, path, size, format)
@@ -99,7 +99,7 @@ internal object RecentFileRepository {
         }
         val store = externalStore
         if (store != null) {
-            store.deleteByPath(entity.path, entity.format.toApi())
+            store.deleteByPath(entity.path, entity.format)
         } else {
             findByFile(entity.name, entity.path, entity.size, entity.format)?.let { delete(it) }
         }

@@ -6,5 +6,5 @@ data class PdfRecentFile(
     val path: String,
     val size: Long,
     val lastOpenTime: Long,
-    val format: PdfFileFormat,
+    val format: RecentFileFormat,
 )

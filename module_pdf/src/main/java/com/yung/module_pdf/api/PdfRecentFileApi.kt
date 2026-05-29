@@ -7,7 +7,7 @@ interface PdfRecentFileApi {
 
     fun observeAll(): Flow<List<PdfRecentFile>>
 
-    fun observeByFormat(format: PdfFileFormat): Flow<List<PdfRecentFile>>
+    fun observeByFormat(format: RecentFileFormat): Flow<List<PdfRecentFile>>
 
     suspend fun delete(id: Long)
 

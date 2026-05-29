@@ -1,56 +1,68 @@
-package com.yung.host
+﻿package com.yung.host
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
-import android.provider.DocumentsContract
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.net.toUri
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
-import com.blankj.utilcode.util.ActivityUtils
+import com.yung.host.activity.PdfTestActivity
+import com.yung.host.activity.RouteTestActivity
 import com.yung.host.theme.ComposeTheme
-import com.yung.module_pdf.activity.PdfSelectActivity
-import com.yung.module_pdf.common.PdfSelectMode
 
 class MainActivity : FragmentActivity() {
+
+    private data class TestEntry(
+        val title: String,
+        val target: Class<*>,
+    )
+
+    private val entries = listOf(
+        TestEntry("RouteTestActivity", RouteTestActivity::class.java),
+        TestEntry("PdfTestActivity", PdfTestActivity::class.java),
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val activity = this
         setContent {
             ComposeTheme {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .statusBarsPadding()
+                        .padding(16.dp),
                 ) {
-                    Button(onClick = { HostNavigator.toHome(activity) }) {
-                        Text(text = "Open Home Module")
+                    item {
+                        Text(
+                            text = "Module Host Tests",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(bottom = 16.dp),
+                        )
                     }
-                    Button(onClick = { HostNavigator.toWeightEdit(activity) }) {
-                        Text(text = "Open Home WeightEdit")
-                    }
-                    Button(onClick = { HostNavigator.toCategoryList(activity) }) {
-                        Text(text = "Open Category List")
-                    }
-                    Button(onClick = { HostNavigator.toLogin(activity) }) {
-                        Text(text = "Open User Login")
-                    }
-                    Button(onClick = { HostNavigator.toAbout(activity) }) {
-                        Text(text = "Open About Us")
-                    }
-                    Button(onClick = {
-                        PdfSelectActivity.start(activity, PdfSelectMode.PREVIEW)
-                    }) {
-                        Text(text = "PDF")
+                    items(entries) { entry ->
+                        Text(
+                            text = entry.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    startActivity(Intent(this@MainActivity, entry.target))
+                                }
+                                .padding(vertical = 16.dp),
+                        )
+                        HorizontalDivider()
                     }
                 }
             }

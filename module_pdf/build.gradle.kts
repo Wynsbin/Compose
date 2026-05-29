@@ -54,6 +54,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.guolin.permissionx)
+    implementation(libs.orbit.viewmodel)
+    implementation(libs.orbit.compose)
     implementation(libs.android.pdf.viewer)
     api(libs.pdfbox.android)
     implementation(libs.compose.reorderable)

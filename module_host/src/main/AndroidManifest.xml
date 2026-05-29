@@ -13,5 +13,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:exported="false"
+            android:name="com.yung.host.activity.RouteTestActivity"
+            android:theme="@style/Theme.Compose" />
+        <activity
+            android:exported="false"
+            android:name="com.yung.host.activity.PdfTestActivity"
+            android:theme="@style/Theme.Compose" />
     </application>
 </manifest>

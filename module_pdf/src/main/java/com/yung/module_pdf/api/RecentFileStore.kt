@@ -10,11 +10,11 @@ interface RecentFileStore {
 
     fun observeAll(): Flow<List<PdfRecentFile>>
 
-    fun observeByFormat(format: PdfFileFormat): Flow<List<PdfRecentFile>>
+    fun observeByFormat(format: RecentFileFormat): Flow<List<PdfRecentFile>>
 
     suspend fun upsert(file: PdfRecentFile)
 
     suspend fun delete(id: Long)
 
-    suspend fun deleteByPath(path: String, format: PdfFileFormat)
+    suspend fun deleteByPath(path: String, format: RecentFileFormat)
 }
