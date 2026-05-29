@@ -1,6 +1,7 @@
 [versions]
 compileSdk = "36"
 minSdk = "26"
+pdf = "1.0.0"
 targetSdk = "36"
 agp = "9.1.0"
 coreKtx = "1.18.0"
@@ -61,6 +62,7 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+pdf = { module = "com.yung.module:pdf", version.ref = "pdf" }
 utilcodex = { group = "com.blankj", name = "utilcodex", version.ref = "utilcodex" }
 eventbus = { group = "org.greenrobot", name = "eventbus", version.ref = "eventbus" }
 guolin-permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "guolinPermissionx" }

@@ -1,0 +1,35 @@
+
+configurations {
+    deployerJars
+}
+
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                if (!publishToServer) {
+                    url = localPath
+                } else {
+                    url = REPOSITORY_URL
+                    credentials {
+                        username = NEXUS_USERNAME
+                        password = NEXUS_PASSWORD
+                    }
+                }
+            }
+        }
+        publications {
+            release(MavenPublication) {
+                from components.release
+                pom {
+                    name = aarId
+                    artifactId = aarId
+                    groupId = groupID
+                    version = versionName
+                    packaging = 'aar'
+                    description = aarDescription
+                }
+            }
+        }
+    }
+}

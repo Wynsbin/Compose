@@ -4,13 +4,31 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
+    id("maven-publish")
 }
+
+extra.apply {
+    set("aarId", "pdf")
+    set("aarDescription", "PDF Editor Module")
+    set("versionName", "1.0.0")
+    set("publishToServer", false)
+    set("groupID", project.findProperty("GROUP_MODULE"))
+    set("localPath", "${rootProject.projectDir}/repo")
+}
+
+apply(from = "../nexus_maven_push.gradle")
 
 android {
     namespace = "com.yung.module_pdf"
 
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     compileOptions {
@@ -41,8 +59,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     api(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
-    implementation(libs.arouter.api)
-    kapt(libs.arouter.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -60,10 +76,4 @@ dependencies {
     api(libs.pdfbox.android)
     implementation(libs.compose.reorderable)
     implementation(libs.coil.compose)
-}
-
-kapt {
-    arguments {
-        arg("AROUTER_MODULE_NAME", project.name)
-    }
 }

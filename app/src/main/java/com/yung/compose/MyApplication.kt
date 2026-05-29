@@ -3,10 +3,7 @@ package com.yung.compose
 import androidx.appcompat.app.AppCompatDelegate
 import com.blankj.utilcode.util.Utils
 import com.yung.base.BaseApplication
-import com.yung.compose.recent.HostAppDatabase
-import com.yung.compose.recent.HostRecentFileStore
 import com.yung.module_pdf.api.PdfSdk
-import com.yung.module_pdf.api.PdfSdkConfig
 import com.yung.route.RouteInitializer
 
 class MyApplication : BaseApplication() {

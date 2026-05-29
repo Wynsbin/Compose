@@ -1,5 +1,13 @@
 pluginManagement {
     repositories {
+        maven { url = uri("./repo") }
+        maven {
+            url = uri(providers.gradleProperty("REPOSITORY_URL").get())
+            credentials {
+                username = providers.gradleProperty("NEXUS_USERNAME").get()
+                password = providers.gradleProperty("NEXUS_PASSWORD").get()
+            }
+        }
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/central") }
         maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
@@ -21,25 +29,21 @@ plugins {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        // Ktor 新版本在阿里云镜像上可能缺 JAR，强制从 Maven Central 拉取
         exclusiveContent {
-            forRepository {
-                mavenCentral()
-            }
-            filter {
-                includeGroup("io.ktor")
+            forRepository { mavenCentral() }
+            filter { includeGroup("io.ktor") }
+        }
+        maven { url = uri("./repo") }
+        maven {
+            url = uri(providers.gradleProperty("REPOSITORY_URL").get())
+            credentials {
+                username = providers.gradleProperty("NEXUS_USERNAME").get()
+                password = providers.gradleProperty("NEXUS_PASSWORD").get()
             }
         }
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/central") }
         maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven {
-            url = uri("https://packages.aliyun.com/maven/repository/2059818-release-mYrrDg/")
-            credentials {
-                username = "611dcf0c1069a2b099fef257"
-                password = "BSYRFZsTXZv4"
-            }
-        }
         maven(url = "https://jitpack.io")
         google()
         mavenCentral()
