@@ -17,20 +17,28 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import com.alibaba.android.arouter.launcher.ARouter
 import com.yung.host.activity.PdfTestActivity
 import com.yung.host.activity.RouteTestActivity
 import com.yung.host.theme.ComposeTheme
+import com.yung.route.RoutePath
 
 class MainActivity : FragmentActivity() {
 
     private data class TestEntry(
         val title: String,
-        val target: Class<*>,
-    )
+        val target: Class<*>? = null,
+        val routePath: String? = null,
+    ) {
+        init {
+            require((target != null) xor (routePath != null))
+        }
+    }
 
     private val entries = listOf(
-        TestEntry("RouteTestActivity", RouteTestActivity::class.java),
-        TestEntry("PdfTestActivity", PdfTestActivity::class.java),
+        TestEntry("RouteTestActivity", target = RouteTestActivity::class.java),
+        TestEntry("PdfTestActivity", target = PdfTestActivity::class.java),
+        TestEntry("IoT Module", routePath = RoutePath.Iot.MAIN),
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +66,14 @@ class MainActivity : FragmentActivity() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    startActivity(Intent(this@MainActivity, entry.target))
+                                    when {
+                                        entry.target != null ->
+                                            startActivity(Intent(this@MainActivity, entry.target))
+                                        entry.routePath != null ->
+                                            ARouter.getInstance()
+                                                .build(entry.routePath)
+                                                .navigation(this@MainActivity)
+                                    }
                                 }
                                 .padding(vertical = 16.dp),
                         )

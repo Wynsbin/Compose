@@ -48,6 +48,9 @@ class RouteTestActivity : FragmentActivity() {
                     Button(onClick = { HostNavigator.toAbout(activity) }) {
                         Text(text = "Open About Us")
                     }
+                    Button(onClick = { HostNavigator.toIot(activity) }) {
+                        Text(text = "Open IoT Module")
+                    }
                 }
             }
         }

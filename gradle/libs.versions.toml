@@ -28,6 +28,8 @@ pdfboxAndroid = "2.0.27.0"
 composeReorderable = "0.9.6"
 constraintlayoutCompose = "1.1.0"
 fragmentKtx = "1.8.9"
+pahoMqtt = "1.2.5"
+pahoAndroidService = "4.2.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -71,6 +73,8 @@ pdfbox-android = { group = "com.tom-roush", name = "pdfbox-android", version.ref
 compose-reorderable = { group = "org.burnoutcrew.composereorderable", name = "reorderable", version.ref = "composeReorderable" }
 androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
+paho-mqtt-client = { group = "org.eclipse.paho", name = "org.eclipse.paho.client.mqttv3", version.ref = "pahoMqtt" }
+paho-android-service = { group = "com.github.hannesa2", name = "paho.mqtt.android", version.ref = "pahoAndroidService" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

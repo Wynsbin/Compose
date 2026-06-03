@@ -12,4 +12,8 @@ object RoutePath {
         const val LOGIN = "/user/login"
         const val ABOUT = "/user/about"
     }
+
+    object Iot {
+        const val MAIN = "/iot/main"
+    }
 }
