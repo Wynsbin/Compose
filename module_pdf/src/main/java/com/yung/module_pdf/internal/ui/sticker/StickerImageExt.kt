@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -58,6 +59,8 @@ fun ImageStickerBox(
     var rotation by remember(sticker.rotation) { mutableStateOf(sticker.rotation) }
     var scaleRatio by remember(sticker.scaleRatio) { mutableStateOf((sticker.scaleRatio)) }
     val cachedBitmap = remember(sticker.bitmap) { sticker.bitmap }
+    val onUpdateOffsetState by rememberUpdatedState(onUpdateOffset)
+    val onUpdateRotationAndScaleState by rememberUpdatedState(onUpdateRotationAndScale)
 
     ConstraintLayout(modifier = Modifier
         .graphicsLayer {
@@ -73,7 +76,7 @@ fun ImageStickerBox(
                     (sticker.previewArea.width - it.width) / 2f,
                     (sticker.previewArea.height - it.height) / 2f
                 )
-                onUpdateOffset(offset)
+                onUpdateOffsetState(offset)
             }
             waterSize = it
         }) {
@@ -103,7 +106,7 @@ fun ImageStickerBox(
                 )
             }
             .padding(stickerBoxSpace2)
-            .pointerInput(Unit) {
+            .pointerInput(sticker.id) {
                 detectDragGestures(onDragStart = {
                     isDragging = true
                 }, onDragEnd = {
@@ -124,7 +127,7 @@ fun ImageStickerBox(
                         0.1f, (sticker.previewArea.height - waterSize.height).toFloat()
                     )
                     offset = Offset(offsetX, offsetY)
-                    onUpdateOffset(offset)
+                    onUpdateOffsetState(offset)
                 }, onDragCancel = {
                     isDragging = false
                 })
@@ -181,7 +184,7 @@ fun ImageStickerBox(
                         start.linkTo(edit.start)
                         bottom.linkTo(edit.bottom)
                     }
-                    .pointerInput(Unit) {
+                    .pointerInput(sticker.id) {
                         detectDragGestures { change, dragAmount ->
                             change.consume()
                             val dragOffset = Offset(-dragAmount.x, -dragAmount.y)
@@ -189,7 +192,7 @@ fun ImageStickerBox(
                             val scaleChange = calculateScale(dragOffset)
                             rotation += angleChange
                             scaleRatio = (scaleRatio + scaleChange).coerceIn(1f, 2f) // 限制缩放范围
-                            onUpdateRotationAndScale(rotation, scaleRatio)
+                            onUpdateRotationAndScaleState(rotation, scaleRatio)
                         }
                     })
         }

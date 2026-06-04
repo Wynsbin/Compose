@@ -182,26 +182,11 @@ private fun PdfPreviewScreen(
                 if (curTextStickerNew != null) {
                     StickerMaskLayer(stickerBox = {
                         WatermarkBox(
-                            sticker = curTextStickerNew!!,
-                            onUpdateOffset = {
-                                viewModel.onUpdateTextSticker(curTextStickerNew?.copy(offset = it))
-                            },
-                            onUpdateRotationAndScale = { rotation, scale ->
-                                viewModel.onUpdateTextSticker(
-                                    curTextStickerNew?.copy(
-                                        rotation = rotation,
-                                        scaleRatio = scale
-                                    )
-                                )
-                            },
-                            onUpdateValue = {
-                                viewModel.onUpdateTextSticker(curTextStickerNew?.copy(text = it))
-                            },
-                            onUpdateLineBreak = {
-                                viewModel.onUpdateTextSticker(
-                                    curTextStickerNew?.copy(textLineBreaks = it)
-                                )
-                            },
+                            sticker = curTextStickerNew,
+                            onUpdateOffset = viewModel::updateWatermarkOffset,
+                            onUpdateRotationAndScale = viewModel::updateWatermarkRotationAndScale,
+                            onUpdateValue = viewModel::updateWatermarkText,
+                            onUpdateLineBreak = viewModel::updateWatermarkLineBreaks,
                         )
                     })
                 }
@@ -225,11 +210,7 @@ private fun PdfPreviewScreen(
                     viewModel.submitUpdatedTextStickerStyle(switch, color, fontSize)
                 },
                 onUpdateData = { switch, color, fontSize ->
-                    viewModel.onUpdateTextSticker(
-                        curTextStickerNew?.copy(
-                            switch = switch, color = color, fontSize = fontSize
-                        )
-                    )
+                    viewModel.updateWatermarkStyle(switch, color, fontSize)
                 })
         }
 

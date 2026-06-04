@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -66,21 +67,18 @@ fun WatermarkBox(
     var scaleRatio by remember(sticker.scaleRatio) { mutableStateOf((sticker.scaleRatio)) }
     var textLineBreaks by remember(sticker.textLineBreaks) { mutableStateOf((sticker.textLineBreaks)) }
     var showTextInputDialog by remember { mutableStateOf(false) }
-    val textStyle by remember(
-        sticker.color, sticker.trans, sticker.fontSize, sticker.fontWeight,
-        sticker.fontStyle, sticker.textDecoration, sticker.textAlign
-    ) {
-        mutableStateOf(
-            TextStyle.Default.copy(
-                color = sticker.color.copy(1 - sticker.trans),
-                fontSize = sticker.fontSize,
-                fontWeight = sticker.fontWeight,
-                fontStyle = sticker.fontStyle,
-                textDecoration = sticker.textDecoration,
-                textAlign = sticker.textAlign
-            )
-        )
-    }
+    val onUpdateOffsetState by rememberUpdatedState(onUpdateOffset)
+    val onUpdateRotationAndScaleState by rememberUpdatedState(onUpdateRotationAndScale)
+    val onUpdateValueState by rememberUpdatedState(onUpdateValue)
+    val onUpdateLineBreakState by rememberUpdatedState(onUpdateLineBreak)
+    val textStyle = TextStyle.Default.copy(
+        color = sticker.color.copy(1 - sticker.trans),
+        fontSize = sticker.fontSize,
+        fontWeight = sticker.fontWeight,
+        fontStyle = sticker.fontStyle,
+        textDecoration = sticker.textDecoration,
+        textAlign = sticker.textAlign,
+    )
 
     fun onEdit() {
         if (isSelected) {
@@ -102,7 +100,7 @@ fun WatermarkBox(
                     (sticker.previewArea.width - it.width) / 2f,
                     (sticker.previewArea.height - it.height) / 2f
                 )
-                onUpdateOffset(offset)
+                onUpdateOffsetState(offset)
             }
             waterSize = it
         }) {
@@ -133,7 +131,7 @@ fun WatermarkBox(
                 )
             }
             .padding(stickerBoxSpace2)
-            .pointerInput(Unit) {
+            .pointerInput(sticker.id) {
                 detectDragGestures(onDragStart = {
                     isDragging = true
                 }, onDragEnd = {
@@ -157,13 +155,13 @@ fun WatermarkBox(
                         0.1f, (sticker.previewArea.height - waterSize.height).toFloat()
                     )
                     offset = Offset(offsetX, offsetY)
-                    onUpdateOffset(offset)
+                    onUpdateOffsetState(offset)
                 }, onDragCancel = {
                     isDragging = false
                 })
             }) {
             Text(
-                text = value.text.ifEmpty { "添加水印" },
+                text = value.text.ifEmpty { WATERMARK_PLACEHOLDER },
                 style = textStyle,
                 modifier = Modifier
                     .wrapContentWidth()
@@ -176,7 +174,7 @@ fun WatermarkBox(
                         val end = layoutResult.getLineEnd(lineIndex)
                         start..end
                     }
-                    onUpdateLineBreak(textLineBreaks)
+                    onUpdateLineBreakState(textLineBreaks)
                 }
             )
         }
@@ -209,7 +207,7 @@ fun WatermarkBox(
                         start.linkTo(edit.start)
                         bottom.linkTo(edit.bottom)
                     }
-                    .pointerInput(Unit) {
+                    .pointerInput(sticker.id) {
                         detectDragGestures { change, dragAmount ->
                             change.consume()
                             val dragOffset = Offset(-dragAmount.x, -dragAmount.y)
@@ -217,7 +215,7 @@ fun WatermarkBox(
                             val scaleChange = calculateScale(dragOffset)
                             rotation += angleChange
                             scaleRatio = (scaleRatio + scaleChange).coerceIn(0.5f, 2f) // 限制缩放范围
-                            onUpdateRotationAndScale(rotation, scaleRatio)
+                            onUpdateRotationAndScaleState(rotation, scaleRatio)
                         }
                     })
         }
@@ -229,7 +227,7 @@ fun WatermarkBox(
             onDismiss = { showTextInputDialog = false },
             onComplete = {
                 value = value.copy(text = it)
-                onUpdateValue(value)
+                onUpdateValueState(value)
             },
         )
     }

@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.blankj.utilcode.util.ScreenUtils
 import com.github.barteksc.pdfviewer.PDFView
 import com.shockwave.pdfium.PdfDocument.Bookmark
 import com.yung.module_pdf.internal.core.pdf.PdfDocumentManger
@@ -19,6 +20,7 @@ import com.yung.module_pdf.internal.data.RecentFileRepository
 import com.yung.module_pdf.internal.db.FileInfoEntity
 import com.yung.module_pdf.api.RecentFileFormat
 import com.yung.module_pdf.internal.ui.sticker.TextSticker
+import com.yung.module_pdf.internal.ui.sticker.watermarkTextColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
@@ -195,6 +197,49 @@ class PdfPreviewViewModel : ViewModel(), ContainerHost<PdfPreviewState, PdfPrevi
         reduce { state.copy(curTextStickerNew = textSticker) }
     }
 
+    fun updateWatermarkOffset(offset: Offset) = intent {
+        reduce {
+            state.copy(curTextStickerNew = state.curTextStickerNew?.copy(offset = offset))
+        }
+    }
+
+    fun updateWatermarkRotationAndScale(rotation: Float, scaleRatio: Float) = intent {
+        reduce {
+            state.copy(
+                curTextStickerNew = state.curTextStickerNew?.copy(
+                    rotation = rotation,
+                    scaleRatio = scaleRatio,
+                ),
+            )
+        }
+    }
+
+    fun updateWatermarkText(text: TextFieldValue) = intent {
+        reduce {
+            state.copy(curTextStickerNew = state.curTextStickerNew?.copy(text = text))
+        }
+    }
+
+    fun updateWatermarkLineBreaks(textLineBreaks: List<IntRange>) = intent {
+        reduce {
+            state.copy(
+                curTextStickerNew = state.curTextStickerNew?.copy(textLineBreaks = textLineBreaks),
+            )
+        }
+    }
+
+    fun updateWatermarkStyle(switch: Boolean, color: Color, fontSize: TextUnit) = intent {
+        reduce {
+            state.copy(
+                curTextStickerNew = state.curTextStickerNew?.copy(
+                    switch = switch,
+                    color = color,
+                    fontSize = fontSize,
+                ),
+            )
+        }
+    }
+
     fun addWatermarkBox() {
         container.stateFlow.value.pdfView?.resetZoomWithAnimation()
         clearAllSelectedBox()
@@ -203,9 +248,11 @@ class PdfPreviewViewModel : ViewModel(), ContainerHost<PdfPreviewState, PdfPrevi
             id = System.currentTimeMillis(),
             offset = Offset.Zero,
             previewArea = stickersVisibleArea.value,
-            text = TextFieldValue(text = "添加水印"),
+            text = TextFieldValue(text = ""),
+            color = watermarkTextColors[0],
             isSelected = true,
             curPage = curPage.value,
+            withBackground = true,
         )
         curTextStickerOrig.value = textSticker
         viewModelScope.launch {
@@ -218,15 +265,18 @@ class PdfPreviewViewModel : ViewModel(), ContainerHost<PdfPreviewState, PdfPrevi
         stickerClickHandler.clearClickableRegion(id)
     }
 
-    fun closeUpdatedTextStickerStyle() {
-        curTextStickerOrig.value?.let { orig ->
-            submitUpdatedTextStickerStyle(orig.switch, orig.color, orig.fontSize)
-        }
+    fun closeUpdatedTextStickerStyle() = intent {
+        curTextStickerOrig.value = null
+        reduce { state.copy(curTextStickerNew = null) }
     }
 
     fun submitUpdatedTextStickerStyle(switch: Boolean, color: Color, fontSize: TextUnit) = intent {
-        val updated = state.curTextStickerNew
-            ?.copy(isSelected = false, switch = switch, color = color, fontSize = fontSize)
+        val current = state.curTextStickerNew ?: return@intent
+        if (switch && current.text.text.isBlank()) {
+            postSideEffect(PdfPreviewSideEffect.Toast("请输入水印内容"))
+            return@intent
+        }
+        val updated = current.copy(isSelected = false, switch = switch, color = color, fontSize = fontSize)
         reduce { state.copy(curTextStickerNew = updated) }
         drawTextSticker(updated)
     }
@@ -241,7 +291,7 @@ class PdfPreviewViewModel : ViewModel(), ContainerHost<PdfPreviewState, PdfPrevi
         sticker.offset = Offset(offset.x, offset.y + yOffset)
 
         val index = textStickerList.value.indexOfFirst { it.id == sticker.id }
-        if (index > 0) {
+        if (index >= 0) {
             if (sticker.switch) {
                 textStickerList.update { currentList ->
                     currentList.toMutableList().apply {
@@ -275,6 +325,8 @@ class PdfPreviewViewModel : ViewModel(), ContainerHost<PdfPreviewState, PdfPrevi
                     originalPdfFile = originalPdfFile,
                     outputPdfFile = outputPdfFile,
                     stickers = textStickerList.value,
+                    canvasWidth = stickersVisibleArea.value.width
+                        .takeIf { it > 0 } ?: ScreenUtils.getScreenWidth(),
                 ).onStart {
                     viewModelScope.launch {
                         intent { reduce { state.copy(showLoadingDialog = true) } }

@@ -52,7 +52,10 @@ data class TextSticker(
     val fontItem: FontItem = defFontItem,
     var focus: Boolean = false,
     var bitmap: Bitmap? = null,
+    var withBackground: Boolean = false,
 ) : Sticker()
+
+const val WATERMARK_PLACEHOLDER = "添加水印"
 
 data class ImageSticker(
     override val id: Long,

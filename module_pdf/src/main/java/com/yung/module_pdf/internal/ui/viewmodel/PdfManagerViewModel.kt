@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import org.burnoutcrew.reorderable.ItemPosition
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import java.io.File
@@ -78,18 +77,16 @@ class PdfManagerViewModel : ViewModel(), ContainerHost<PdfManagerState, PdfManag
         }
     }
 
-    fun enterEditMode() {
+    fun enterEditMode(currentOrder: List<PdfItemInfo>) {
         if (container.stateFlow.value.isEditModel) {
-            savePages()
+            intent { reduce { state.copy(pdfItemInfoList = currentOrder) } }
+            savePages(pages = currentOrder)
         } else {
             intent { reduce { state.copy(isEditModel = true) } }
         }
     }
 
-    fun onMove(from: ItemPosition, to: ItemPosition) = intent {
-        val list = state.pdfItemInfoList.toMutableList().apply {
-            add(to.index, removeAt(from.index))
-        }
+    fun updatePdfItemOrder(list: List<PdfItemInfo>) = intent {
         reduce { state.copy(pdfItemInfoList = list) }
     }
 
@@ -107,30 +104,29 @@ class PdfManagerViewModel : ViewModel(), ContainerHost<PdfManagerState, PdfManag
         }
     }
 
-    fun selectAll() = intent {
+    fun selectAll(currentOrder: List<PdfItemInfo>) = intent {
         if (!state.isEditModel) return@intent
+        val selectedIds = state.pdfItemInfoSelectedList.map { it.id }.toSet()
+        val allSelected = currentOrder.isNotEmpty() && selectedIds.size == currentOrder.size &&
+            selectedIds.containsAll(currentOrder.map { it.id })
         reduce {
             state.copy(
-                pdfItemInfoSelectedList = if (state.pdfItemInfoSelectedList == state.pdfItemInfoList) {
-                    emptyList()
-                } else {
-                    state.pdfItemInfoList
-                },
+                pdfItemInfoSelectedList = if (allSelected) emptyList() else currentOrder,
             )
         }
     }
 
-    fun addPage() = intent {
+    fun addPage(currentOrder: List<PdfItemInfo>) = intent {
         if (state.pdfItemInfoSelectedList.isEmpty()) return@intent
-        val first = state.pdfItemInfoList.firstOrNull() ?: return@intent
-        val rotatedMap = state.pdfItemInfoSelectedList.associateBy { it.id }
+        val first = currentOrder.firstOrNull() ?: return@intent
+        val selectedIds = state.pdfItemInfoSelectedList.map { it.id }.toSet()
         val addInfo = PdfItemInfo(IdGen.next(), null, first.width, first.height, 0)
-        val insertIndex = state.pdfItemInfoList.indexOfFirst { rotatedMap.containsKey(it.id) }
-        val list = state.pdfItemInfoList.toMutableList().apply { add(insertIndex, addInfo) }
+        val insertIndex = currentOrder.indexOfFirst { selectedIds.contains(it.id) }
+        val list = currentOrder.toMutableList().apply { add(insertIndex, addInfo) }
         reduce { state.copy(pdfItemInfoList = list) }
     }
 
-    fun rotatePage() = intent {
+    fun rotatePage(currentOrder: List<PdfItemInfo>) = intent {
         if (state.pdfItemInfoSelectedList.isEmpty()) return@intent
         val rotated = state.pdfItemInfoSelectedList.map { info ->
             info.copy(rotationAngle = (info.rotationAngle + 90) % 360)
@@ -139,7 +135,7 @@ class PdfManagerViewModel : ViewModel(), ContainerHost<PdfManagerState, PdfManag
         reduce {
             state.copy(
                 pdfItemInfoSelectedList = rotated,
-                pdfItemInfoList = state.pdfItemInfoList.map { old -> rotatedMap[old.id] ?: old },
+                pdfItemInfoList = currentOrder.map { old -> rotatedMap[old.id] ?: old },
             )
         }
     }
@@ -149,15 +145,15 @@ class PdfManagerViewModel : ViewModel(), ContainerHost<PdfManagerState, PdfManag
         reduce { state.copy(showDeleteDialog = true) }
     }
 
-    fun onDialogDeletePage() = intent {
-        if (state.pdfItemInfoSelectedList.size == state.pdfItemInfoList.size) {
+    fun onDialogDeletePage(currentOrder: List<PdfItemInfo>) = intent {
+        if (state.pdfItemInfoSelectedList.size == currentOrder.size) {
             postSideEffect(PdfManagerSideEffect.Toast("删除失败，至少保留一个页面"))
             return@intent
         }
-        val rotatedMap = state.pdfItemInfoSelectedList.associateBy { it.id }
+        val selectedIds = state.pdfItemInfoSelectedList.map { it.id }.toSet()
         reduce {
             state.copy(
-                pdfItemInfoList = state.pdfItemInfoList.filterNot { rotatedMap.containsKey(it.id) },
+                pdfItemInfoList = currentOrder.filterNot { selectedIds.contains(it.id) },
                 pdfItemInfoSelectedList = emptyList(),
                 showDeleteDialog = false,
             )
@@ -181,9 +177,9 @@ class PdfManagerViewModel : ViewModel(), ContainerHost<PdfManagerState, PdfManag
         postSideEffect(PdfManagerSideEffect.Finish)
     }
 
-    fun onDialogSave() = intent {
-        reduce { state.copy(showExitEditPromptDialog = false) }
-        savePages(shouldFinish = true)
+    fun onDialogSave(currentOrder: List<PdfItemInfo>) = intent {
+        reduce { state.copy(showExitEditPromptDialog = false, pdfItemInfoList = currentOrder) }
+        savePages(shouldFinish = true, pages = currentOrder)
     }
 
     fun insertPDFFile(path: String?) {
@@ -192,13 +188,14 @@ class PdfManagerViewModel : ViewModel(), ContainerHost<PdfManagerState, PdfManag
         }
     }
 
-    private fun savePages(shouldFinish: Boolean = false) {
+    private fun savePages(shouldFinish: Boolean = false, pages: List<PdfItemInfo>? = null) {
         val pdfFile = container.stateFlow.value.pdfFile ?: return
+        val pdItems = pages ?: container.stateFlow.value.pdfItemInfoList
         val outputPdfFile = PdfDocumentManger.createPdfFile()
         PdfDocumentManger.createNewPDDocument(
             originalPdfFile = File(pdfFile.path),
             outputPdfFile = outputPdfFile,
-            pdItems = container.stateFlow.value.pdfItemInfoList,
+            pdItems = pdItems,
         ).onStart {
             intent { reduce { state.copy(showLoadingSaveDialog = true) } }
         }.onCompletion {

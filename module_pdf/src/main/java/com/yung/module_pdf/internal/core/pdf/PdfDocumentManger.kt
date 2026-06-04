@@ -90,6 +90,7 @@ object PdfDocumentManger {
         originalPdfFile: File,
         outputPdfFile: File,
         stickers: List<Sticker>,
+        canvasWidth: Int = ScreenUtils.getScreenWidth(),
     ) = flow {
         runCatching {
             val document = PDDocument.load(originalPdfFile)
@@ -100,14 +101,13 @@ object PdfDocumentManger {
                 val rotation = pdPage.rotation
 
                 // 计算屏幕到PDF的缩放比例（考虑旋转）
-                val canvasWidth = ScreenUtils.getScreenWidth()
+                val exportCanvasWidth = canvasWidth.coerceAtLeast(1)
                 // 绘制图像（考虑旋转后的坐标）
                 val (drawWidth, drawHeight) = when (rotation) {
                     90, 270 -> pageHeight to pageWidth
                     else -> pageWidth to pageHeight
                 }
-                val canvasHeight = (canvasWidth * drawHeight / drawWidth).toInt()
-                println("drawableStickerToPDDocument: $rotation $drawWidth $drawHeight")
+                val canvasHeight = (exportCanvasWidth * drawHeight / drawWidth).toInt()
 
                 PDPageContentStream(
                     document, pdPage, AppendMode.APPEND, true, true
@@ -116,7 +116,7 @@ object PdfDocumentManger {
                     val stickerList = stickers.filter { it.curPage == index }
                     if (stickerList.isNotEmpty()) {
                         val bitmap =
-                            Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888)
+                            Bitmap.createBitmap(exportCanvasWidth, canvasHeight, Bitmap.Config.ARGB_8888)
                         val canvas = Canvas(bitmap)
                         // 保存当前图形状态
                         it.saveGraphicsState()

@@ -248,36 +248,13 @@ private fun PdfEditorScreen(pdfFile: File? = null, viewModel: PdfEditorViewModel
                     is TextSticker -> {
                         StickerMaskLayer(stickerBox = {
                             TextStickerBox(
-                                sticker = curSticker as TextSticker,
+                                sticker = curSticker,
                                 onDelete = { viewModel.onDeleteCurSticker() },
-                                onUpdateOffset = {
-                                    viewModel.onUpdateTextSticker(
-                                        (curSticker as? TextSticker)?.copy(offset = it)
-                                    )
-                                },
-                                onUpdateFocus = {
-                                    viewModel.onUpdateTextSticker(
-                                        (curSticker as? TextSticker)?.copy(focus = it)
-                                    )
-                                },
-                                onUpdateRotationAndScale = { rotation, scale ->
-                                    viewModel.onUpdateTextSticker(
-                                        (curSticker as? TextSticker)?.copy(
-                                            rotation = rotation,
-                                            scaleRatio = scale
-                                        )
-                                    )
-                                },
-                                onUpdateValue = {
-                                    viewModel.onUpdateTextSticker(
-                                        (curSticker as? TextSticker)?.copy(text = it)
-                                    )
-                                },
-                                onUpdateLineBreak = {
-                                    viewModel.onUpdateTextSticker(
-                                        (curSticker as? TextSticker)?.copy(textLineBreaks = it)
-                                    )
-                                },
+                                onUpdateOffset = viewModel::updateTextStickerOffset,
+                                onUpdateFocus = viewModel::updateTextStickerFocus,
+                                onUpdateRotationAndScale = viewModel::updateTextStickerRotationAndScale,
+                                onUpdateValue = viewModel::updateTextStickerText,
+                                onUpdateLineBreak = viewModel::updateTextStickerLineBreaks,
                             )
                         }, onTap = {
                             viewModel.unSelectedStatusAndDrawToPreview()
@@ -287,24 +264,11 @@ private fun PdfEditorScreen(pdfFile: File? = null, viewModel: PdfEditorViewModel
                     is ImageSticker -> {
                         StickerMaskLayer(stickerBox = {
                             ImageStickerBox(
-                                sticker = (curSticker as ImageSticker),
+                                sticker = curSticker,
                                 onCopy = { viewModel.onCopy() },
                                 onDelete = { viewModel.onDeleteCurSticker() },
-                                onUpdateOffset = {
-                                    viewModel.onUpdateImageSticker(
-                                        (curSticker as? ImageSticker)?.copy(
-                                            offset = it
-                                        )
-                                    )
-                                },
-                                onUpdateRotationAndScale = { rotation, scale ->
-                                    viewModel.onUpdateImageSticker(
-                                        (curSticker as? ImageSticker)?.copy(
-                                            rotation = rotation,
-                                            scaleRatio = scale
-                                        )
-                                    )
-                                },
+                                onUpdateOffset = viewModel::updateImageStickerOffset,
+                                onUpdateRotationAndScale = viewModel::updateImageStickerRotationAndScale,
                             )
                         }, onTap = {
                             viewModel.unSelectedStatusAndDrawToPreview()
@@ -330,20 +294,10 @@ private fun PdfEditorScreen(pdfFile: File? = null, viewModel: PdfEditorViewModel
         (curSticker as? TextSticker)?.let {
             BottomStyleMenuBar(
                 sticker = it,
-                onClickKeyboard = {
-                    viewModel.onUpdateTextSticker(
-                        (curSticker as? TextSticker)?.copy(focus = true)
-                    )
-                },
+                onClickKeyboard = { viewModel.updateTextStickerFocus(true) },
                 onClickTextStyle = { showTextStyleBottomSheet = true },
                 onSwitchFontItem = { showFontSelectBottomSheet = true },
-                onSwitchFontWeight = {
-                    viewModel.onUpdateTextSticker(
-                        (curSticker as? TextSticker)?.copy(
-                            fontWeight = it
-                        )
-                    )
-                },
+                onSwitchFontWeight = viewModel::updateTextStickerFontWeight,
                 onSelectedColor = { showTextColorBottomSheet = true },
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
@@ -356,7 +310,7 @@ private fun PdfEditorScreen(pdfFile: File? = null, viewModel: PdfEditorViewModel
                         .padding(bottom = 65.dp, end = 15.dp)
                 ) {
                     showTextColorBottomSheet = false
-                    viewModel.onUpdateTextSticker((curSticker as? TextSticker)?.copy(color = it))
+                    viewModel.updateTextStickerColor(it)
                 }
             }
         }
@@ -378,14 +332,7 @@ private fun PdfEditorScreen(pdfFile: File? = null, viewModel: PdfEditorViewModel
                 onDismiss = { showTextStyleBottomSheet = false },
                 onSelectFont = { showFontSelectBottomSheet = true },
                 onUpdateStyle = { fontItem, textUnit, fontWeight, color ->
-                    viewModel.onUpdateTextSticker(
-                        (curSticker as? TextSticker)?.copy(
-                            fontItem = fontItem,
-                            fontSize = textUnit,
-                            fontWeight = fontWeight,
-                            color = color
-                        )
-                    )
+                    viewModel.updateTextStickerStyle(fontItem, textUnit, fontWeight, color)
                 })
         }
     }
@@ -395,9 +342,8 @@ private fun PdfEditorScreen(pdfFile: File? = null, viewModel: PdfEditorViewModel
             FontSelectBottomSheet(
                 sticker = it,
                 onDismiss = { showFontSelectBottomSheet = false },
-                onUpdateStyle = {
-                    viewModel.onUpdateTextSticker((curSticker as? TextSticker)?.copy(fontItem = it))
-                })
+                onUpdateStyle = viewModel::updateTextStickerFontItem,
+            )
         }
     }
 

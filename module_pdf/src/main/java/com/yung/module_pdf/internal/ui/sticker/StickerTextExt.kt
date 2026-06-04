@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -80,23 +81,20 @@ fun TextStickerBox(
     var scaleRatio by remember(sticker.scaleRatio) { mutableStateOf((sticker.scaleRatio)) }
     var textLineBreaks by remember(sticker.textLineBreaks) { mutableStateOf((sticker.textLineBreaks)) }
     var focus by remember(sticker.focus) { mutableStateOf(sticker.focus) }
-
-    val textStyle by remember(
-        sticker.color, sticker.trans, sticker.fontSize, sticker.fontWeight, sticker.fontStyle,
-        sticker.textDecoration, sticker.textAlign, sticker.fontItem,
-    ) {
-        mutableStateOf(
-            TextStyle.Default.copy(
-                color = sticker.color.copy(1 - sticker.trans),
-                fontSize = sticker.fontSize,
-                fontWeight = sticker.fontWeight,
-                fontStyle = sticker.fontStyle,
-                textDecoration = sticker.textDecoration,
-                textAlign = sticker.textAlign,
-                fontFamily = sticker.fontItem.getFontFamily()
-            )
-        )
-    }
+    val onUpdateOffsetState by rememberUpdatedState(onUpdateOffset)
+    val onUpdateRotationAndScaleState by rememberUpdatedState(onUpdateRotationAndScale)
+    val onUpdateValueState by rememberUpdatedState(onUpdateValue)
+    val onUpdateLineBreakState by rememberUpdatedState(onUpdateLineBreak)
+    val onUpdateFocusState by rememberUpdatedState(onUpdateFocus)
+    val textStyle = TextStyle.Default.copy(
+        color = sticker.color.copy(1 - sticker.trans),
+        fontSize = sticker.fontSize,
+        fontWeight = sticker.fontWeight,
+        fontStyle = sticker.fontStyle,
+        textDecoration = sticker.textDecoration,
+        textAlign = sticker.textAlign,
+        fontFamily = sticker.fontItem.getFontFamily(),
+    )
     val focusManager = LocalFocusManager.current
 
     SoftKeyBoardListener.setListener(context as FragmentActivity,
@@ -107,7 +105,7 @@ fun TextStickerBox(
             override fun keyBoardHide() {
                 focusManager.clearFocus()
                 focus = false
-                onUpdateFocus(focus)
+                onUpdateFocusState(focus)
             }
         })
 
@@ -132,7 +130,7 @@ fun TextStickerBox(
                     (sticker.previewArea.width - it.width) / 2f,
                     (sticker.previewArea.height - it.height) / 2f
                 )
-                onUpdateOffset(offset)
+                onUpdateOffsetState(offset)
             }
             waterSize = it
         }) {
@@ -162,7 +160,7 @@ fun TextStickerBox(
                 )
             }
             .padding(stickerBoxSpace2)
-            .pointerInput(Unit) {
+            .pointerInput(sticker.id) {
                 detectDragGestures(onDragStart = {
                     isDragging = true
                 }, onDragEnd = {
@@ -183,7 +181,7 @@ fun TextStickerBox(
                         0.1f, (sticker.previewArea.height - waterSize.height).toFloat()
                     )
                     offset = Offset(offsetX, offsetY)
-                    onUpdateOffset(offset)
+                    onUpdateOffsetState(offset)
                 }, onDragCancel = {
                     isDragging = false
                 })
@@ -192,7 +190,7 @@ fun TextStickerBox(
                 value = value,
                 onValueChange = {
                     value = it
-                    onUpdateValue(it)
+                    onUpdateValueState(it)
                 },
                 modifier = Modifier
                     .defaultMinSize(minWidth = 50.dp)
@@ -207,7 +205,7 @@ fun TextStickerBox(
                         val end = layoutResult.getLineEnd(lineIndex)
                         start..end
                     }
-                    onUpdateLineBreak(textLineBreaks)
+                    onUpdateLineBreakState(textLineBreaks)
                 },
                 singleLine = false,
                 textStyle = textStyle,
@@ -255,7 +253,7 @@ fun TextStickerBox(
                         start.linkTo(edit.start)
                         bottom.linkTo(edit.bottom)
                     }
-                    .pointerInput(Unit) {
+                    .pointerInput(sticker.id) {
                         detectDragGestures { change, dragAmount ->
                             change.consume()
                             val dragOffset = Offset(-dragAmount.x, -dragAmount.y)
@@ -263,7 +261,7 @@ fun TextStickerBox(
                             val scaleChange = calculateScale(dragOffset)
                             rotation += angleChange
                             scaleRatio = (scaleRatio + scaleChange).coerceIn(0.5f, 2f) // 限制缩放范围
-                            onUpdateRotationAndScale(rotation, scaleRatio)
+                            onUpdateRotationAndScaleState(rotation, scaleRatio)
                         }
                     })
         }

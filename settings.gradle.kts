@@ -1,13 +1,13 @@
 pluginManagement {
     repositories {
         maven { url = uri("./repo") }
-        maven {
-            url = uri(providers.gradleProperty("REPOSITORY_URL").get())
-            credentials {
-                username = providers.gradleProperty("NEXUS_USERNAME").get()
-                password = providers.gradleProperty("NEXUS_PASSWORD").get()
-            }
-        }
+//        maven {
+//            url = uri(providers.gradleProperty("REPOSITORY_URL").get())
+//            credentials {
+//                username = providers.gradleProperty("NEXUS_USERNAME").get()
+//                password = providers.gradleProperty("NEXUS_PASSWORD").get()
+//            }
+//        }
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/central") }
         maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
@@ -23,9 +23,6 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -34,13 +31,13 @@ dependencyResolutionManagement {
             filter { includeGroup("io.ktor") }
         }
         maven { url = uri("./repo") }
-        maven {
-            url = uri(providers.gradleProperty("REPOSITORY_URL").get())
-            credentials {
-                username = providers.gradleProperty("NEXUS_USERNAME").get()
-                password = providers.gradleProperty("NEXUS_PASSWORD").get()
-            }
-        }
+//        maven {
+//            url = uri(providers.gradleProperty("REPOSITORY_URL").get())
+//            credentials {
+//                username = providers.gradleProperty("NEXUS_USERNAME").get()
+//                password = providers.gradleProperty("NEXUS_PASSWORD").get()
+//            }
+//        }
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/central") }
         maven { url = uri("https://maven.aliyun.com/repository/public") }

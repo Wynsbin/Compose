@@ -36,6 +36,8 @@ class IotMainActivity : ComponentActivity() {
 
     private var status by mutableStateOf("未连接")
     private var lastMessage by mutableStateOf("暂无消息")
+    private var isDisconnecting by mutableStateOf(false)
+    private var userRequestedDisconnect = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +56,8 @@ class IotMainActivity : ComponentActivity() {
                 Button(onClick = { publish(TOPIC, "Hello from Android") }) {
                     Text(text = "发布消息")
                 }
-                Button(onClick = { disconnect() }) {
-                    Text(text = "断开连接")
+                Button(onClick = { disconnect() }, enabled = !isDisconnecting) {
+                    Text(text = if (isDisconnecting) "断开中..." else "断开连接")
                 }
             }
         }
@@ -74,7 +76,11 @@ class IotMainActivity : ComponentActivity() {
 
             override fun connectionLost(cause: Throwable?) {
                 Log.d(TAG, "Connection lost ${cause?.message}")
-                runOnUiThread { status = "连接丢失" }
+                runOnUiThread {
+                    if (!userRequestedDisconnect) {
+                        status = "连接丢失"
+                    }
+                }
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) = Unit
@@ -153,20 +159,53 @@ class IotMainActivity : ComponentActivity() {
     }
 
     private fun disconnect() {
+        if (!::mqttClient.isInitialized || isDisconnecting) return
+        if (!mqttClient.isConnected) {
+            status = "已断开"
+            releaseMqttClient()
+            return
+        }
+        isDisconnecting = true
+        userRequestedDisconnect = true
         try {
             mqttClient.disconnect(null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     Log.d(TAG, "Disconnected")
-                    runOnUiThread { status = "已断开" }
+                    runOnUiThread {
+                        status = "已断开"
+                        isDisconnecting = false
+                        userRequestedDisconnect = false
+                        releaseMqttClient()
+                    }
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     Log.d(TAG, "Failed to disconnect", exception)
-                    runOnUiThread { status = "断开失败: ${exception?.message}" }
+                    runOnUiThread {
+                        status = "断开失败: ${exception?.message}"
+                        isDisconnecting = false
+                        userRequestedDisconnect = false
+                        releaseMqttClient()
+                    }
                 }
             })
-        } catch (e: MqttException) {
+        } catch (e: Exception) {
             Log.e(TAG, "Disconnect error", e)
+            isDisconnecting = false
+            userRequestedDisconnect = false
+            status = "断开异常: ${e.message}"
+            releaseMqttClient()
+        }
+    }
+
+    /** disconnect 后 clientHandle 会被置空，重复调用 disconnect() 会 NPE，需先判连再释放资源 */
+    private fun releaseMqttClient() {
+        if (!::mqttClient.isInitialized) return
+        try {
+            mqttClient.unregisterResources()
+            mqttClient.close()
+        } catch (e: Exception) {
+            Log.w(TAG, "Release mqtt client error", e)
         }
     }
 
@@ -174,9 +213,10 @@ class IotMainActivity : ComponentActivity() {
         if (::mqttClient.isInitialized && mqttClient.isConnected) {
             try {
                 mqttClient.disconnect()
-            } catch (_: MqttException) {
+            } catch (_: Exception) {
             }
         }
+        releaseMqttClient()
         super.onDestroy()
     }
 

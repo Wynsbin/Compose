@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.util.TypedValue
@@ -30,6 +29,14 @@ object PdfDrawManager {
         isAntiAlias = true
     }
 
+    private val textBgPaint = Paint().apply {
+        color = android.graphics.Color.WHITE
+        isAntiAlias = true
+        style = Paint.Style.FILL
+    }
+
+    private val textBgRadiusPx = 4.dp2px
+
     //绘制单个贴纸
     fun drawSticker(
         context: Context,
@@ -42,7 +49,7 @@ object PdfDrawManager {
             when (sticker) {
                 is TextSticker -> {
                     val paint = Paint().apply {
-                        color = sticker.color.toAndroidColor()
+                        color = sticker.color.copy(alpha = 1f - sticker.trans).toAndroidColor()
                         textSize = TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_SP,
                             sticker.fontSize.value,
@@ -64,7 +71,6 @@ object PdfDrawManager {
                     val yPos = sticker.offset.y
 
                     // 1. 文本尺寸（未缩放，用来算比例）
-                    val textBounds = Rect()
                     val text = sticker.text.text
 
                     val lineBreaks = if (text.isNotEmpty() && sticker.textLineBreaks.isEmpty()) {
@@ -77,15 +83,10 @@ object PdfDrawManager {
                     val newText = lineBreaks.map { range ->
                         text.substring(range.first, range.last)
                     }
-
-                    val firstLineText = newText.firstOrNull() ?: "占位"
-                    paint.getTextBounds(firstLineText, 0, firstLineText.length, textBounds)
+                    val lineWidths = newText.map { paint.measureText(it) }
+                    val textWidth = lineWidths.maxOrNull() ?: 0f
                     val fm = paint.fontMetrics
-                    val textWidth = textBounds.width().toFloat()
-                    val textHeight = textBounds.height().toFloat()
-                    val textRealHeight = (fm.bottom - fm.top)
-
-                    // 2. 边距（未缩放值）
+                    val textRealHeight = fm.bottom - fm.top
                     val paddingHor = stickerBoxSpaceLT.first.value.dp2px
                     val paddingVer = stickerBoxSpaceLT.second.value.dp2px
                     val bgW = textWidth + paddingHor * 2
@@ -101,16 +102,22 @@ object PdfDrawManager {
                     canvas.rotate(sticker.rotation)          // 3. 绕新原点旋转
 
                     // 4. 画背景
-                    canvas.drawRoundRect(bgRect, 0f, 0f, bgPaint)
+                    if (sticker.withBackground) {
+                        canvas.drawRoundRect(bgRect, textBgRadiusPx, textBgRadiusPx, textBgPaint)
+                    } else {
+                        canvas.drawRoundRect(bgRect, 0f, 0f, bgPaint)
+                    }
 
                     // 计算文本垂直居中的起始位置
                     val textStartY =
                         -((textRealHeight * lineCount) / 2) + textRealHeight - fm.descent
                     // 5. 画文字（边距也是放大后的像素）
-                    newText?.forEachIndexed { index, str ->
+                    newText.forEachIndexed { index, str ->
                         canvas.drawText(
-                            str, -textWidth / 2, textStartY + textRealHeight * index, // 垂直方向逐行偏移
-                            paint
+                            str,
+                            -lineWidths[index] / 2f,
+                            textStartY + textRealHeight * index,
+                            paint,
                         )
                     }
 

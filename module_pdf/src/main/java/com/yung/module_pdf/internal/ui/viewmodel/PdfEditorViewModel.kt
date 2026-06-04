@@ -4,19 +4,24 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.barteksc.pdfviewer.PDFView
 import com.yung.module_pdf.R
+import com.blankj.utilcode.util.ScreenUtils
 import com.yung.module_pdf.internal.core.pdf.PdfDocumentManger
 import com.yung.module_pdf.internal.core.pdf.PdfDrawManager
 import com.yung.module_pdf.internal.core.pdf.StickerClickHandler
 import com.yung.module_pdf.internal.data.RecentFileRepository
 import com.yung.module_pdf.api.RecentFileFormat
 import com.yung.module_pdf.internal.ui.component.EditMenuType
+import com.yung.module_pdf.internal.ui.sticker.FontItem
 import com.yung.module_pdf.internal.ui.sticker.ImageSticker
 import com.yung.module_pdf.internal.ui.sticker.Sticker
 import com.yung.module_pdf.internal.ui.sticker.TextSticker
@@ -243,6 +248,50 @@ class PdfEditorViewModel : ViewModel(), ContainerHost<PdfEditorState, PdfEditorS
         reduce { state.copy(curSticker = sticker) }
     }
 
+    private fun updateCurTextSticker(block: (TextSticker) -> TextSticker) = intent {
+        val current = state.curSticker as? TextSticker ?: return@intent
+        reduce { state.copy(curSticker = block(current)) }
+    }
+
+    private fun updateCurImageSticker(block: (ImageSticker) -> ImageSticker) = intent {
+        val current = state.curSticker as? ImageSticker ?: return@intent
+        reduce { state.copy(curSticker = block(current)) }
+    }
+
+    fun updateTextStickerOffset(offset: Offset) = updateCurTextSticker { it.copy(offset = offset) }
+
+    fun updateTextStickerRotationAndScale(rotation: Float, scaleRatio: Float) =
+        updateCurTextSticker { it.copy(rotation = rotation, scaleRatio = scaleRatio) }
+
+    fun updateTextStickerText(text: TextFieldValue) = updateCurTextSticker { it.copy(text = text) }
+
+    fun updateTextStickerLineBreaks(textLineBreaks: List<IntRange>) =
+        updateCurTextSticker { it.copy(textLineBreaks = textLineBreaks) }
+
+    fun updateTextStickerFocus(focus: Boolean) = updateCurTextSticker { it.copy(focus = focus) }
+
+    fun updateTextStickerColor(color: Color) = updateCurTextSticker { it.copy(color = color) }
+
+    fun updateTextStickerFontWeight(fontWeight: FontWeight) =
+        updateCurTextSticker { it.copy(fontWeight = fontWeight) }
+
+    fun updateTextStickerFontItem(fontItem: FontItem) =
+        updateCurTextSticker { it.copy(fontItem = fontItem) }
+
+    fun updateTextStickerStyle(
+        fontItem: FontItem,
+        fontSize: TextUnit,
+        fontWeight: FontWeight,
+        color: Color,
+    ) = updateCurTextSticker {
+        it.copy(fontItem = fontItem, fontSize = fontSize, fontWeight = fontWeight, color = color)
+    }
+
+    fun updateImageStickerOffset(offset: Offset) = updateCurImageSticker { it.copy(offset = offset) }
+
+    fun updateImageStickerRotationAndScale(rotation: Float, scaleRatio: Float) =
+        updateCurImageSticker { it.copy(rotation = rotation, scaleRatio = scaleRatio) }
+
     fun onDeleteCurSticker() {
         val sticker = container.stateFlow.value.curSticker ?: return
         deleteSticker(sticker)
@@ -270,7 +319,7 @@ class PdfEditorViewModel : ViewModel(), ContainerHost<PdfEditorState, PdfEditorS
                 if (inNextPage) -firstVisibleArea.visibleHeight else firstVisibleArea.yOffset
             sticker.offset = Offset(offset.x, offset.y + yOffset)
             val index = stickerList.indexOfFirst { it.id == sticker.id }
-            if (index > 0) {
+            if (index >= 0) {
                 stickerList = stickerList.toMutableList().apply { set(index, sticker) }
             } else {
                 addSticker(sticker)
@@ -357,6 +406,7 @@ class PdfEditorViewModel : ViewModel(), ContainerHost<PdfEditorState, PdfEditorS
             originalPdfFile = originalPdfFile,
             outputPdfFile = outputPdfFile,
             stickers = stickerList,
+            canvasWidth = stickersVisibleArea.width.takeIf { it > 0 } ?: ScreenUtils.getScreenWidth(),
         ).onStart {
             viewModelScope.launch {
                 intent { reduce { state.copy(showLoadingDialog = true) } }

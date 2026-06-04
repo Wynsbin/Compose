@@ -35,6 +35,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,12 +66,23 @@ import com.yung.module_pdf.internal.ui.component.managerMenus
 import com.yung.module_pdf.internal.ui.component.noRippleClickable
 import com.yung.module_pdf.internal.ui.viewmodel.CollectPdfManagerSideEffects
 import com.yung.module_pdf.internal.ui.viewmodel.PdfManagerViewModel
+import com.yung.module_pdf.internal.domain.PdfItemInfo
 import org.orbitmvi.orbit.compose.collectAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.unit.IntOffset
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyGridState
 import org.burnoutcrew.reorderable.reorderable
 import java.io.File
+
+private val PdfReorderPlacementSpec = spring(
+    dampingRatio = Spring.DampingRatioNoBouncy,
+    stiffness = Spring.StiffnessLow,
+    visibilityThreshold = IntOffset.VisibilityThreshold,
+)
 
 class PdfManagerActivity : FragmentActivity() {
     companion object {
@@ -105,17 +121,47 @@ private fun PdfManagerScreen(pdfFile: File? = null, viewModel: PdfManagerViewMod
     val showDeleteDialog = uiState.showDeleteDialog
     val showExitEditPromptDialog = uiState.showExitEditPromptDialog
 
-    val state = rememberReorderableLazyGridState(
-        onMove = { from, to -> viewModel.onMove(from, to) },
-        canDragOver = { _, _ -> isEditModel }
+    // 拖拽排序需同步更新列表；经 Orbit intent 异步写回会导致 onMove 与 LazyGrid 布局不同步
+    var localPdfItems by remember { mutableStateOf(pdfItemInfoList) }
+    val gridState = rememberLazyGridState()
+    val syncOrderToViewModel by rememberUpdatedState<(List<PdfItemInfo>) -> Unit> {
+        { viewModel.updatePdfItemOrder(it) }
+    }
+
+    val reorderState = rememberReorderableLazyGridState(
+        gridState = gridState,
+        onMove = { from, to ->
+            localPdfItems = localPdfItems.toMutableList().apply {
+                add(to.index, removeAt(from.index))
+            }
+        },
+        onDragEnd = { _, _ ->
+            syncOrderToViewModel(localPdfItems)
+        },
     )
+
+    // 仅在外部数据变化时同步；不要把 draggingItemKey 作为 key，否则松手时会用旧 VM 列表覆盖本地排序结果
+    LaunchedEffect(pdfItemInfoList) {
+        if (reorderState.draggingItemKey == null) {
+            val vmById = pdfItemInfoList.associateBy { it.id }
+            val localIds = localPdfItems.map { it.id }
+            val vmIds = pdfItemInfoList.map { it.id }
+            localPdfItems = when {
+                localIds == vmIds -> pdfItemInfoList
+                localIds.toSet() == vmIds.toSet() -> localPdfItems.map { vmById[it.id] ?: it }
+                else -> pdfItemInfoList
+            }
+        }
+    }
+
+    val currentLocalItems by rememberUpdatedState(localPdfItems)
 
     fun clickEditMenu(type: ManagerType) {
         when (type) {
-            ManagerType.ADD -> viewModel.addPage()
+            ManagerType.ADD -> viewModel.addPage(currentLocalItems)
             ManagerType.DELETE -> viewModel.onDelete()
-            ManagerType.ROTATE -> viewModel.rotatePage()
-            ManagerType.SELECT_ALL -> viewModel.selectAll()
+            ManagerType.ROTATE -> viewModel.rotatePage(currentLocalItems)
+            ManagerType.SELECT_ALL -> viewModel.selectAll(currentLocalItems)
         }
     }
 
@@ -171,7 +217,7 @@ private fun PdfManagerScreen(pdfFile: File? = null, viewModel: PdfManagerViewMod
                         if (isEditModel) Color(0xffF5341A) else Color(0xffF7F7F7),
                         RoundedCornerShape(4.dp)
                     )
-                    .noRippleClickable { viewModel.enterEditMode() }
+                    .noRippleClickable { viewModel.enterEditMode(currentLocalItems) }
                     .wrapContentWidth(Alignment.CenterHorizontally)
                     .wrapContentHeight(Alignment.CenterVertically))
         }
@@ -192,32 +238,34 @@ private fun PdfManagerScreen(pdfFile: File? = null, viewModel: PdfManagerViewMod
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            state = state.gridState,
+            state = gridState,
             contentPadding = PaddingValues(20.dp),
             horizontalArrangement = Arrangement.spacedBy(11.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
-                .reorderable(state)
+                .reorderable(reorderState)
                 .fillMaxSize()
                 .weight(1f)
                 .background(Color.White),
         ) {
-            items(items = pdfItemInfoList, key = { it.id }) { item ->
+            items(items = localPdfItems, key = { it.id }) { item ->
                 ReorderableItem(
-                    state,
+                    reorderState,
                     key = item.id,
-                    defaultDraggingModifier = Modifier.animateItem()
+                    defaultDraggingModifier = Modifier.then(
+                        if (isEditModel) {
+                            Modifier.animateItem(
+                                placementSpec = PdfReorderPlacementSpec,
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
                 ) { isDragging ->
                     Column(
-                        modifier = Modifier
-                            .then(
-                                if (isEditModel) {
-                                    Modifier.detectReorderAfterLongPress(state)
-                                } else {
-                                    Modifier
-                                }
-                            )
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -232,7 +280,13 @@ private fun PdfManagerScreen(pdfFile: File? = null, viewModel: PdfManagerViewMod
                                     RoundedCornerShape(10.dp)
                                 )
                                 .clip(RoundedCornerShape(10.dp))
-                                .noRippleClickable { viewModel.addToSelectedList(item) }
+                                .then(
+                                    if (isEditModel) {
+                                        Modifier.detectReorderAfterLongPress(reorderState)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                         ) {
                             AsyncImage(
                                 model = item.bitmap,
@@ -253,12 +307,13 @@ private fun PdfManagerScreen(pdfFile: File? = null, viewModel: PdfManagerViewMod
                                     modifier = Modifier
                                         .padding(4.dp)
                                         .align(Alignment.TopEnd)
+                                        .noRippleClickable { viewModel.addToSelectedList(item) }
                                 )
                             }
                         }
 
                         Text(
-                            text = "${pdfItemInfoList.indexOfFirst { it == item }.plus(1)}",
+                            text = "${localPdfItems.indexOfFirst { it.id == item.id }.plus(1)}",
                             color = Color(0xff252525),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
@@ -296,7 +351,7 @@ private fun PdfManagerScreen(pdfFile: File? = null, viewModel: PdfManagerViewMod
         DeletePagePromptDialog(onDismiss = {
             viewModel.onDialogUnDeletePage()
         }, onDelete = {
-            viewModel.onDialogDeletePage()
+            viewModel.onDialogDeletePage(currentLocalItems)
         })
     }
 
@@ -304,7 +359,7 @@ private fun PdfManagerScreen(pdfFile: File? = null, viewModel: PdfManagerViewMod
         ExitEditPromptDialog(onDismiss = {
             viewModel.onDialogNotSave()
         }, onSave = {
-            viewModel.onDialogSave()
+            viewModel.onDialogSave(currentLocalItems)
         })
     }
 }
