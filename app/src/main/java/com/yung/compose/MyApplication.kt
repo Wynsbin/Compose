@@ -2,6 +2,7 @@ package com.yung.compose
 
 import androidx.appcompat.app.AppCompatDelegate
 import com.blankj.utilcode.util.Utils
+import com.yung.anr.watchdog.AnrWatchdog
 import com.yung.base.BaseApplication
 import com.yung.module_pdf.api.PdfSdk
 import com.yung.route.RouteInitializer
@@ -20,6 +21,7 @@ class MyApplication : BaseApplication() {
         PdfSdk.init(application = this)
         Utils.init(this)
         RouteInitializer.init(this)
+        AnrWatchdog.init(application = this, enabled = appIsDebug())
     }
 
     override fun onTerminate() {

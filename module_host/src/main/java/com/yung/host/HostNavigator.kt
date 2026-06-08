@@ -40,4 +40,12 @@ object HostNavigator {
     fun toIot(context: Context) {
         ARouter.getInstance().build(RoutePath.Iot.MAIN).navigation(context)
     }
+
+    fun toAnr(context: Context) {
+        ARouter.getInstance().build(RoutePath.Anr.MAIN).navigation(context)
+    }
+
+    fun toAnrReports(context: Context) {
+        ARouter.getInstance().build(RoutePath.Anr.REPORTS).navigation(context)
+    }
 }

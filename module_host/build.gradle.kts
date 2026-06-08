@@ -30,6 +30,7 @@ dependencies {
     api(project(":module_user"))
     api(project(":module_pdf"))
     api(project(":module_iot"))
+    api(project(":module_anr"))
 //    api(libs.pdf)
     implementation(libs.androidx.core.ktx)
 }

@@ -16,4 +16,9 @@ object RoutePath {
     object Iot {
         const val MAIN = "/iot/main"
     }
+
+    object Anr {
+        const val MAIN = "/anr/main"
+        const val REPORTS = "/anr/reports"
+    }
 }

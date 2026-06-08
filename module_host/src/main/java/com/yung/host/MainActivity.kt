@@ -39,6 +39,8 @@ class MainActivity : FragmentActivity() {
         TestEntry("RouteTestActivity", target = RouteTestActivity::class.java),
         TestEntry("PdfTestActivity", target = PdfTestActivity::class.java),
         TestEntry("IoT Module", routePath = RoutePath.Iot.MAIN),
+        TestEntry("ANR Module", routePath = RoutePath.Anr.MAIN),
+        TestEntry("ANR Reports (Debug)", routePath = RoutePath.Anr.REPORTS),
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name=".AnrMainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AnrReportActivity"
+            android:exported="false" />
+
+        <receiver
+            android:name=".receiver.BlockingBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.yung.anr.action.BLOCKING_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name=".provider.BlockingContentProvider"
+            android:authorities="${applicationId}.anr.blocking"
+            android:exported="false" />
+
+        <service
+            android:name=".service.BlockingService"
+            android:exported="false" />
+    </application>
+</manifest>
