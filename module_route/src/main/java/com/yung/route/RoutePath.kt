@@ -15,6 +15,11 @@ object RoutePath {
 
     object Iot {
         const val MAIN = "/iot/main"
+        const val DEVICE_LIST = "/iot/device/list"
+        const val DEVICE_DETAIL = "/iot/device/detail"
+        const val DEVICE_SETTINGS = "/iot/device/settings"
+        const val PROVISION_START = "/iot/provision/start"
+        const val DEBUG_MQTT = "/iot/debug/mqtt"
     }
 
     object Anr {

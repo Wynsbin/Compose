@@ -41,6 +41,21 @@ object HostNavigator {
         ARouter.getInstance().build(RoutePath.Iot.MAIN).navigation(context)
     }
 
+    fun toIotProvision(context: Context) {
+        ARouter.getInstance().build(RoutePath.Iot.PROVISION_START).navigation(context)
+    }
+
+    fun toIotDeviceDetail(context: Context, deviceId: String) {
+        ARouter.getInstance()
+            .build(RoutePath.Iot.DEVICE_DETAIL)
+            .withString("extra_device_id", deviceId)
+            .navigation(context)
+    }
+
+    fun toIotDebug(context: Context) {
+        ARouter.getInstance().build(RoutePath.Iot.DEBUG_MQTT).navigation(context)
+    }
+
     fun toAnr(context: Context) {
         ARouter.getInstance().build(RoutePath.Anr.MAIN).navigation(context)
     }

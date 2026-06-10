@@ -9,7 +9,22 @@
 
     <application>
         <activity
-            android:name=".IotMainActivity"
+            android:name=".ui.home.IotMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.device.list.DeviceListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.device.detail.DeviceDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.device.settings.DeviceSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.provision.ProvisionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.debug.MqttDebugActivity"
             android:exported="false" />
 
         <service

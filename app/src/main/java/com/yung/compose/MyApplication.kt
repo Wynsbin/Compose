@@ -5,6 +5,7 @@ import com.blankj.utilcode.util.Utils
 import com.yung.anr.watchdog.AnrWatchdog
 import com.yung.base.BaseApplication
 import com.yung.module_pdf.api.PdfSdk
+import com.yung.iot.api.IotSdk
 import com.yung.route.RouteInitializer
 
 class MyApplication : BaseApplication() {
@@ -20,6 +21,7 @@ class MyApplication : BaseApplication() {
 //        )
         PdfSdk.init(application = this)
         Utils.init(this)
+        IotSdk.init(application = this)
         RouteInitializer.init(this)
         AnrWatchdog.init(application = this, enabled = appIsDebug())
     }
